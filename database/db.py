@@ -1,5 +1,4 @@
 import os
-
 import pandas as pd
 import streamlit as st
 from sqlalchemy import create_engine, text
@@ -61,18 +60,12 @@ def load_data():
     df["created"] = pd.to_datetime(df["created"])
     df["closed"] = pd.to_datetime(df["closed"])
 
-    # Step 5: replace missing text values with a label
-    df["agency"] = df["agency"].fillna("Unknown")
-    df["category"] = df["category"].fillna("Unknown")
-    df["borough"] = df["borough"].fillna("Unspecified")
-    df["status"] = df["status"].fillna("(missing)")
-
-    # Step 6: columns calculated from the created date
+    # Step 5: columns calculated from the created date
     df["month"] = df["created"].dt.strftime("%Y-%m")   # '2024-03'
     df["wd"] = df["created"].dt.dayofweek               # 0 = Monday ... 6 = Sunday
     df["hr"] = df["created"].dt.hour                    # 0-23
 
-    # Step 7: hours between created and closed
+    # Step 6: hours between created and closed
     #   empty if the request is still open, or if closed is before created
     hours = (df["closed"] - df["created"]).dt.total_seconds() / 3600
     df["dur_h"] = hours.where(hours >= 0)

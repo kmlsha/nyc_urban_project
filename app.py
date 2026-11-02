@@ -26,9 +26,9 @@ if not get_database_url():
     st.error("DATABASE_URL is not set. Add it as an environment variable or in .streamlit/secrets.toml.")
     st.stop()
 
-# ---------------- Sidebar ----------------
+# ---------------- Created Sidebar(s) with respect to tasks provided ----------------
 PAGES = [
-    "Overview",
+    "Overview", # KPI page
     "1. Complaint categories",
     "2. Agency workload",
     "3. Borough analysis",
@@ -57,7 +57,7 @@ st.title("🏙️ Urban Pulse")
 st.caption("NYC 311 Citizen Complaint Intelligence & Resolution Analytics")
 st.subheader(page)
 
-# ---------------- Routing ----------------
+# ---------------- Routing using if-elif statements ----------------
 if page == "Overview":
     demand.overview(top_n)
 elif page == "1. Complaint categories":

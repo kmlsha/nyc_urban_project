@@ -1,5 +1,3 @@
-"""utils.py - small shared helpers and constants."""
-
 import plotly.express as px
 import streamlit as st
 

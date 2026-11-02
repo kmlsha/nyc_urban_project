@@ -1,10 +1,3 @@
-"""
-queries.py - reusable functions that each return a pandas DataFrame.
-
-All of them start from the clean table:  df = load_data()
-Columns you can group by: "category", "agency", "borough", "status".
-"""
-
 import streamlit as st
 
 from database.db import load_data
