@@ -49,7 +49,7 @@ pip install requests pandas streamlit mysql-connector-python python-dotenv tabul
 
 ## DATABASE
 
-Server : MySQL, localhost, port 3307
+Server : MySQL, localhost, port 3306
 User : root (empty password)
 Database : urban_nyc_complaints
 Table : service_requests
@@ -70,4 +70,5 @@ longitude decimal(10,7) YES NULL
 ## ANALYSIS
 
 Built on pandas, streamlit and tabulate.
-Queries, charts and findings: not yet recorded. Add them here.
+Queries, charts and findings: on running this command in terminal - streamlit run app.py
+The application provides interactive queries, charts, and insights to visualize issue trends across different categories. It also analyzes issue closure durations based on various dimensions, including issue type, area, and category, helping identify patterns and trends in issue resolution.

@@ -3,7 +3,8 @@ import pandas as pd
 import streamlit as st
 from sqlalchemy import create_engine, text
 
-TABLE_NAME = os.getenv("SR_TABLE")
+TABLE_NAME = os.getenv("SR_TABLE", "service_requests")  # default to "service_requests" if not set
+# load_dotenv() # load environment variables from .env file
 
 
 # ----------------------------------------------------------------------------

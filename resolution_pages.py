@@ -61,24 +61,26 @@ def outlier_investigation(top_n, min_n):
 
 def skewness_distribution():
     hours = get_durations()["dur_h"]
-    print("hours -  ",hours)
+    print("skewness_distribution - hours -  ",hours)
     cols = st.columns(3)
     cols[0].metric("Skewness", f"{hours.skew():.2f}")
     cols[1].metric("Mean / median", f"{hours.mean() / max(hours.median(), 1e-9):.2f}x")
     cols[2].metric("Skewness (log)", f"{np.log1p(hours).skew():.2f}")
 
-    scale = st.radio("Histogram scale", ["Linear (up to 99th percentile)", "Log10 hours"], horizontal=True)
-    if scale.startswith("Linear"):
-        fig = px.histogram(hours[hours <= hours.quantile(0.99)], nbins=80, labels={"value": "Hours"})
-    else:
-        fig = px.histogram(np.log10(hours.clip(lower=0.001)), nbins=80, labels={"value": "log10(hours)"})
+    # scale = st.radio("Histogram scale", ["Linear (up to 99th percentile)", "Log10 hours"], horizontal=True)
+    # if scale.startswith("Linear"):
+    fig = px.histogram(hours[hours <= hours.quantile(0.99)], nbins=80, labels={"value": "Hours"})
+    # else:
+    #     fig = px.histogram(np.log10(hours.clip(lower=0.001)), nbins=80, labels={"value": "log10(hours)"})
     fig.update_layout(showlegend=False)
     show(fig)
     st.caption("Skewness well above 0 = long right tail, so the median is a better summary than the mean.")
 
 
 def closure_rate_comparison(min_n):
-    # by = st.radio("Compare by", ["agency", "borough", "category"], horizontal=True)
+    st.subheader("Closure rate by agency, borough and category")
+    st.caption("Closure rate = closed requests / total requests. "
+               "Groups with fewer than the minimum number of requests are skipped.")
     for by in ["agency", "borough", "category"]:
         rates = closure_by(by)
         st.header(by)
@@ -94,23 +96,17 @@ def volume_vs_duration(min_n):
 
 
 def high_volume_long_duration(min_n):
-    left, right = st.columns(2)
-    vol_pct = left.slider("Volume percentile threshold", 50, 99, 75)
-    dur_pct = right.slider("Median-duration percentile threshold", 50, 99, 75)
+    volume = count_by("category")
+    speed = median_by("category", 30)
+    merged = volume.merge(speed, on="category")
 
-    merged = count_by("category").merge(median_by("category", min_n), on="category")
-    vol_cut = merged["requests"].quantile(vol_pct / 100)
-    dur_cut = merged["median_hours"].quantile(dur_pct / 100)
-    is_hit = (merged["requests"] >= vol_cut) & (merged["median_hours"] >= dur_cut)
-    merged["flag"] = np.where(is_hit, "High volume + slow", "Other")
+    vol_cut = merged["requests"].quantile(0.75)
+    dur_cut = merged["median_hours"].quantile(0.75)
 
-    fig = px.scatter(merged, x="requests", y="median_hours", color="flag", hover_name="category",
-                     log_x=True, log_y=True,
-                     color_discrete_map={"High volume + slow": "#ff4b4b", "Other": "#8b93a1"})
+    hits = merged[(merged["requests"] >= vol_cut) & (merged["median_hours"] >= dur_cut)]
+    hits = hits.sort_values("median_hours", ascending=False)
+    print("high_volume_long_duration - ",hits)
+    fig = px.scatter(merged, x="requests", y="median_hours", hover_name="category", log_x=True, log_y=True)
     fig.add_vline(x=vol_cut, line_dash="dash")
     fig.add_hline(y=dur_cut, line_dash="dash")
     show(fig)
-
-    hits = merged[is_hit].sort_values(["requests", "median_hours"], ascending=False)
-    st.markdown(f"**{len(hits)} categories** with requests ≥ {vol_cut:,.0f} and median ≥ {dur_cut:,.1f} h")
-    st.dataframe(hits.drop(columns="flag").round(2), use_container_width=True)

@@ -2,10 +2,6 @@
 
 import plotly.express as px
 import streamlit as st
-import seaborn as sns
-import matplotlib
-matplotlib.use("TkAgg")   # or "QtAgg"
-import matplotlib.pyplot as plt
 
 
 from database.db import load_data
@@ -47,9 +43,10 @@ def borough_analysis():
 
 def monthly_trend():
     df = load_data()
-    monthly = df.groupby("month").size().reset_index(name="requests")   # sorted by month
-    monthly["change_vs_last_month_%"] = (monthly["requests"].pct_change() * 100).round(2)
-    show(px.line(monthly, x="month", y="requests", markers=True))
+    daily = df.groupby(df["created"].dt.date).size().reset_index(name="requests")
+    daily.columns = ["date", "requests"]
+    daily["change_vs_prev_day_%"] = (daily["requests"].pct_change() * 100).round(2)
+    show(px.line(daily, x="date", y="requests", markers=True))
 
 
 def weekday_hour_demand():
