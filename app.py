@@ -54,12 +54,12 @@ with st.sidebar.expander("Settings"):
         st.rerun()
 
 st.title("🏙️ Urban Pulse")
-st.caption("NYC 311 Citizen Complaint Intelligence & Resolution Analytics")
+st.title("NYC 311 Citizen Complaint Intelligence & Resolution Analytics")
 st.subheader(page)
 
 # ---------------- Routing using if-elif statements ----------------
 if page == "Overview":
-    demand.overview(top_n)
+    demand.overview()
 elif page == "1. Complaint categories":
     demand.complaint_categories(top_n)
 elif page == "2. Agency workload":

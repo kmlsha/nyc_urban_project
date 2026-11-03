@@ -3,7 +3,7 @@ import streamlit as st
 
 px.defaults.template = "plotly_dark"
 
-SLOW_HOURS = 48  # requests taking longer than this count as "slow"
+SLOW_HOURS = 72  # requests taking longer than this count as "slow"
 WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
 

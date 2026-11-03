@@ -9,12 +9,12 @@ from database.queries import count_by, get_durations, total_requests
 from utils import SLOW_HOURS, WEEKDAYS, add_share, show
 
 
-def overview(top_n):
+def overview():
     df = load_data()
     total = len(df)
-    closed = df["closed"].notna().sum()          # requests with a closed date
+    closed = df["closed"].notna().sum() # requests with a closed date
     hours = get_durations()["dur_h"]
-    st.header("5 KPIs generated using the NYC dataset")
+    st.header("📊 Dashboard: five KPI(s) generated using the NYC dataset")
     cols = st.columns(5) # 5 KPI added here
     cols[0].metric("Total requests", f"{total:,}") #1st  - Total requests
     cols[1].metric("Recorded closure", f"{closed / total * 100:.1f}%") #2nd - Record/closed perc
@@ -26,6 +26,7 @@ def complaint_categories(top_n):
     cat = count_by("category", top_n)
     cat["share in percentage"] = (cat["requests"] / total_requests() * 100).round(2)  # share of ALL requests
     show(px.bar(cat.sort_values("requests"), x="requests", y="category", orientation="h"))
+    st.subheader("Total distinct request volume by complaint category")
     st.dataframe(cat)
 
 
@@ -33,11 +34,13 @@ def agency_workload():
     print("agency  -- ",add_share(count_by("agency")))
     agency = add_share(count_by("agency"))
     show(px.bar(agency.head(15).sort_values("requests",ascending=False), x="agency", y="requests"))
+    st.subheader("Total distinct request volume by agency")
     st.dataframe(agency)
 
 
 def borough_analysis():
     borough = add_share(count_by("borough"))
+    st.subheader("Total distinct request volume by borough")
     show(px.bar(borough, x="borough", y="requests", text="share_in_perc"))
 
 
@@ -58,13 +61,17 @@ def weekday_hour_demand():
 
     by_day = grid.sum(axis=1).rename_axis("weekday").reset_index(name="requests")
     by_hour = grid.sum(axis=0).rename_axis("hour").reset_index(name="requests")
+    st.subheader("Requests by weekday")
     st.plotly_chart(px.bar(by_day, x="weekday", y="requests",text="requests"), use_container_width=True)
+    st.subheader("Requests by hour of day")
     st.plotly_chart(px.bar(by_hour, x="hour", y="requests"), use_container_width=True)
 
 
 
 def status_analysis():
     status = add_share(count_by("status"))
-    left, right = st.columns(2)
-    right.plotly_chart(px.bar(status, x="status", y="requests"), use_container_width=True)
-    left.plotly_chart(px.pie(status, names="status", values="requests", hole=0.45), use_container_width=True)
+    # left, right = st.columns(2)
+    st.subheader("Requests by status in pie and bar charts")
+    st.caption("Status = open, closed, pending, etc. Share = % of all requests.")
+    st.plotly_chart(px.pie(status, names="status", values="requests", hole=0.45), use_container_width=True)
+    st.plotly_chart(px.bar(status, x="status", y="requests"), use_container_width=True)
