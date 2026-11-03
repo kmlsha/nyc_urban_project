@@ -46,10 +46,7 @@ def load_data():
     with engine.connect() as connection:
         df = pd.read_sql(text(sql), connection)
 
-    # Step 2: one row per request
-    df = df.drop_duplicates(subset="unique_key")
-
-    # Step 3: friendlier column names
+    # Step 2: friendlier column names
     df = df.rename(columns={
         "unique_key": "id",
         "created_date": "created",
@@ -57,16 +54,16 @@ def load_data():
         "complaint_type": "category",
     })
 
-    # Step 4: make sure the dates are real dates
+    # Step 3: make sure the dates are real dates
     df["created"] = pd.to_datetime(df["created"])
     df["closed"] = pd.to_datetime(df["closed"])
 
-    # Step 5: columns calculated from the created date
+    # Step 4: columns calculated from the created date
     df["month"] = df["created"].dt.strftime("%Y-%m")   # '2024-03'
     df["wd"] = df["created"].dt.dayofweek               # 0 = Monday ... 6 = Sunday
     df["hr"] = df["created"].dt.hour                    # 0-23
 
-    # Step 6: hours between created and closed
+    # Step 5: hours between created and closed
     #   empty if the request is still open, or if closed is before created
     hours = (df["closed"] - df["created"]).dt.total_seconds() / 3600
     df["dur_h"] = hours.where(hours >= 0)
